@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UOB Student Nationality Data</title>
+    <link href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>University of Bahrain - Student Enrollment Data</h1>
+    </header>
+    <main class="container">
+        <div class="overflow-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Year</th>
+                        <th scope="col">Semester</th>
+                        <th scope="col">The Programs</th>
+                        <th scope="col">Nationality</th>
+                        <th scope="col">Colleges</th>
+                        <th scope="col">Number of Students</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table">
+                    <!-- Data rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <p id="error-message" class="error" style="display: none;">Failed to load data. Please try again later.</p>
+    </main>
+    <footer>
+        Mariam aldossri 20157513
+    </footer>
+    <script>
+        // API Endpoint
+        const apiUrl = 'https://data.gov.bh/api/explore/v2.1/catalog/datasets/01-statistics-of-students-nationalities_updated/records?where=colleges%20like%20%22IT%22%20AND%20the_programs%20like%20%22bachelor%22&limit=100';
+
+        // Fetch data from the API
+        async function fetchData() {
+            const errorMessage = document.getElementById('error-message');
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.records && data.records.length > 0) {
+                    populateTable(data.records);
+                } else {
+                    errorMessage.textContent = "No data available.";
+                    errorMessage.style.display = "block";
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                errorMessage.style.display = "block";
+            }
+        }
+
+        // Populate table with data
+        function populateTable(records) {
+            const tableBody = document.getElementById('data-table');
+            tableBody.innerHTML = ''; // Clear any existing rows
+
+            records.forEach(record => {
+                const { year, semester, nationality, colleges, number_of_students } = record.record.fields;
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${year}</td>
+                    <td>${semester}</td>
+                    <td>Number of students enrolled in bachelor programs</td>
+                    <td>${nationality}</td>
+                    <td>${colleges}</td>
+                    <td>${number_of_students}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Mock data for testing
+        const mockData = [
+            {
+                record: {
+                    fields: {
+                        year: '2018-2019',
+                        semester: 'First Semester',
+                        nationality: 'Bahraini',
+                        colleges: 'College of IT',
+                        number_of_students: 1622
+                    }
+                }
+            },
+            {
+                record: {
+                    fields: {
+                        year: '2018-2019',
+                        semester: 'First Semester',
+                        nationality: 'GCC National',
+                        colleges: 'College of IT',
+                        number_of_students: 146
+                    }
+                }
+            },
+            {
+                record: {
+                    fields: {
+                        year: '2018-2019',
+                        semester: 'Second Semester',
+                        nationality: 'Other',
+                        colleges: 'College of IT',
+                        number_of_students: 323
+                    }
+                }
+            },
+            {
+                record: {
+                    fields: {
+                        year: '2018-2019',
+                        semester: 'Summer Semester',
+                        nationality: 'Bahraini',
+                        colleges: 'College of IT',
+                        number_of_students: 1228
+                    }
+                }
+            },
+            {
+                record: {
+                    fields: {
+                        year: '2019-2020',
+                        semester: 'Summer Semester',
+                        nationality: 'GCC National',
+                        colleges: 'College of IT',
+                        number_of_students: 72
+                    }
+                }
+            }
+        ];
+
+        // Uncomment the line below to test with mock data
+        populateTable(mockData);
+
+        // Initialize the app
+        // fetchData();
+    </script>
+</body>
+</html>
